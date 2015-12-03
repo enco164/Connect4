@@ -2,6 +2,8 @@ package rs.project4420.connect4;
 
 /**
  * Created by enco on 4.11.15..
+ *
+ * Klasa za cuvanje nekih konstanti
  */
 public class Constants {
 

@@ -8,14 +8,16 @@ import android.widget.BaseAdapter;
 
 /**
  * Created by enco on 4.11.15..
+ *
+ * Adapter za GridView koji sluzi da opsluzi tablu sa podacima iz Game objekta
  */
-public class Connect4Adapter extends BaseAdapter{
+public class Adapter extends BaseAdapter{
 
     private static final String TAG = "Adapter";
     private final Game game;
     private Context mContext;
 
-    public Connect4Adapter(Context context, Game game) {
+    public Adapter(Context context, Game game) {
         mContext = context;
         this.game = game;
     }

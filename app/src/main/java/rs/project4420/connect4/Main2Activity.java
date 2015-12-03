@@ -29,6 +29,11 @@ import com.google.example.games.basegameutils.BaseGameUtils;
 
 import java.util.ArrayList;
 
+/**
+ * Glavni i jedini aktiviti. Sluzi za prebacivanje sa jednog fragmenta na drugi kao i za
+ * komunikaciju sa Google serverom. Implementira lisenere ka fragmentima kao i lisenere za
+ * callback metode koje se zovu kada stigne odgovor sa servera.
+ */
 public class Main2Activity extends AppCompatActivity
         implements Main2ActivityFragment.MainFragmentListener,
         ChoosePlayerFragment.ChoosePlayerFragmentListener,
@@ -157,6 +162,9 @@ public class Main2Activity extends AppCompatActivity
                 }
                 processResult();
 
+                /* Koristi se kako ne bi prvi igrac odigrao prvi potez dok se ne javi protivnik da
+                hoce da igra sa njim igru
+                 */
                 if (game.getTurnCount() < 2) {
                     game.setTurnCount(game.getTurnCount() + 1);
                     Games.TurnBasedMultiplayer.takeTurn(mGoogleApiClient,
@@ -199,7 +207,7 @@ public class Main2Activity extends AppCompatActivity
     @Override
     public void onActivityResult(int request, int response, Intent data) {
         super.onActivityResult(request, response, data);
-        if (request == RC_SIGN_IN) {
+        if (request == RC_SIGN_IN) { // Ako se ulogovao
             mSignInClicked = false;
             mResolvingConnectionFailure = false;
             if (response == Activity.RESULT_OK) {
@@ -207,7 +215,7 @@ public class Main2Activity extends AppCompatActivity
             } else {
                 BaseGameUtils.showActivityResultError(this, request, response, R.string.signin_other_error);
             }
-        } else if (request == RC_SELECT_PLAYERS) {
+        } else if (request == RC_SELECT_PLAYERS) { // Ako je dosao iz UI dela za selektovanje igraca
             Log.d(TAG,"Returned from 'Select players to Invite' dialog");
 
             if (response != Activity.RESULT_OK) {
@@ -229,7 +237,7 @@ public class Main2Activity extends AppCompatActivity
             progress.setMessage("Initiating game...");
             progress.show();
 
-        } else if (request == RC_LOOK_AT_MATCHES) {
+        } else if (request == RC_LOOK_AT_MATCHES) { // Ako je dosao iz UI dela gde gleda sve meceve
             // Returning from the 'Select Match' dialog
 
             if (response != Activity.RESULT_OK) {// user canceled
@@ -253,6 +261,13 @@ public class Main2Activity extends AppCompatActivity
         }
     }
 
+    /**
+     * Lisener kada je stigao odgovor sa servera sa novim podacima. Problem je sto korisnik moze da
+     * igra vise meceva u isto vreme pa ako mu stignu podaci iz drugog meca oni ce preci preko
+     * trenutne igre. Zato moramo da porveravamo da li se ID trenutnog meca poklapa sa ID meca koji
+     * je pristigao.
+     * @param turnBasedMatch
+     */
     @Override
     public void onTurnBasedMatchReceived(TurnBasedMatch turnBasedMatch) {
         if(match != null && match.getMatchId().equalsIgnoreCase(turnBasedMatch.getMatchId()) ) {
@@ -269,6 +284,9 @@ public class Main2Activity extends AppCompatActivity
         Toast.makeText(Main2Activity.this, s, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Callback klasa koja sluzi za inicijalizovanje multiplayer igre
+     */
     private class MatchInitiatedCallback implements
             ResultCallback<TurnBasedMultiplayer.InitiateMatchResult> {
 
@@ -304,6 +322,9 @@ public class Main2Activity extends AppCompatActivity
         }
     }
 
+    /**
+     * Callback klasa koja sluzi za azuriranje trenutne multiplayer igre
+     */
     private class UpdateMatchCallback implements ResultCallback<TurnBasedMultiplayer.UpdateMatchResult> {
         @Override
         public void onResult(TurnBasedMultiplayer.UpdateMatchResult updateMatchResult) {
@@ -322,8 +343,9 @@ public class Main2Activity extends AppCompatActivity
         changeFragment(new ChoosePlayerFragment(), args, "GameFragmentTag", true);
     }
 
-
-
+    /**
+     * Procesuiranje rezultata, zove se i iz MatchInitiatedCallback i iz UpdateMatchCallback
+     */
     private void processResult(){
         GameFragment fragment = (GameFragment) getSupportFragmentManager()
                 .findFragmentByTag("GameFragmentTag");
@@ -346,6 +368,12 @@ public class Main2Activity extends AppCompatActivity
         }
     }
 
+    /**
+     * Kada je kliknuto na neku kolonu u GameFragment-u zove se ovaj lisener. Na samom pocetu se
+     * pozove metod za proveru da li je validan potez za tu kolonu. Ako jeste onda u zavisnosti od
+     * tipa igre odredjuje se sledeca akcija.
+     * @param position
+     */
     @Override
     public void onColumnClicked(int position) {
         if(game.getType() != Constants.ARG_FRIEND)
@@ -404,6 +432,13 @@ public class Main2Activity extends AppCompatActivity
         }
     }
 
+    /**
+     * Metod koji sluzi za tranziciju Fragmenta iz trenutnog u drugi
+     * @param fragment
+     * @param args
+     * @param tag
+     * @param addToBackStack
+     */
     private void changeFragment(Fragment fragment, Bundle args, String tag, boolean addToBackStack){
 
         if(!addToBackStack) getSupportFragmentManager().popBackStack();
@@ -438,6 +473,10 @@ public class Main2Activity extends AppCompatActivity
         changeFragment(gameFragment, args, "GameFragmentTag", true);
     }
 
+    /**
+     * Metod za odredjivanje koji igrac je sledeci na redu
+     * @return nextId
+     */
     public String getNextParticipantId() {
 
         String playerId = Games.Players.getCurrentPlayerId(mGoogleApiClient);
@@ -466,6 +505,9 @@ public class Main2Activity extends AppCompatActivity
             return null;
         }
     }
+
+
+    /* Metodi za klik na dugmice iz razlicitih fragmenata */
 
     @Override
     public void onPlayButton(int type) {

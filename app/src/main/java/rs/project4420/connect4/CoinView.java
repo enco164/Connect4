@@ -9,12 +9,16 @@ import android.view.View;
 
 /**
  * Created by enco on 4.11.15..
+ *
+ * Graficka reprezentacija jednog novcica.
+ * Uparuje se sa CoinItem klasom
+ *
  */
 public class CoinView extends View {
 
 
 
-    private static final String TAG = "DotView";
+    private static final String TAG = "CoinView";
     Paint paint;
     public float radius;
     private float cx;

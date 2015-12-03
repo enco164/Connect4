@@ -4,13 +4,9 @@ package rs.project4420.connect4;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.animation.AnimatorListenerCompat;
-import android.support.v4.animation.AnimatorUpdateListenerCompat;
-import android.support.v4.animation.ValueAnimatorCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
@@ -27,11 +23,13 @@ import android.widget.TextView;
 
 /**
  * A simple {@link Fragment} subclass.
+ * Fragment zaduzen za igru prikazivanje igre. Prikazuje tablu sa poljima, hvata dogadjaje klikova
+ * i komunicira sa Game objektom sa jedne strane i sa Activity sa druge strane.
  */
 public class GameFragment extends Fragment implements GameListener, AdapterView.OnItemClickListener {
 
     private static final String TAG = "GameFragment";
-    private Connect4Adapter adapter;
+    private Adapter adapter;
     private Vibrator vibrator;
     private GridView tableView;
     private TextView statusText;
@@ -60,7 +58,7 @@ public class GameFragment extends Fragment implements GameListener, AdapterView.
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
-        adapter = new Connect4Adapter(context, game);
+        adapter = new Adapter(context, game);
         callback = (GameFragmentListener) getActivity();// TODO: surround try catch
     }
 
@@ -99,6 +97,11 @@ public class GameFragment extends Fragment implements GameListener, AdapterView.
 
     }
 
+    /**
+     * Lisener za promenu Game podataka. U sebi ima animaciju padanja kuglice, kao i animaciju
+     * koja se pokrece ako je doslo do kraja.
+     * @param changedData
+     */
     @Override
     public void gameDataChanged(CoinItem[][] changedData) {
         while (dooing){}
@@ -210,6 +213,9 @@ public class GameFragment extends Fragment implements GameListener, AdapterView.
 
     }
 
+    /**
+     * Lisener za osvezavanje UI dok AI "razmislja"
+     */
     @Override
     public void computerThinkig() {
         getActivity().runOnUiThread(new Runnable() {
@@ -220,6 +226,9 @@ public class GameFragment extends Fragment implements GameListener, AdapterView.
         });
     }
 
+    /**
+     * Lisener kad je AI odigrao
+     */
     @Override
     public void computerPlayed() {
 
@@ -251,6 +260,13 @@ public class GameFragment extends Fragment implements GameListener, AdapterView.
 
     }
 
+    /**
+     * Lisener za klik na GridView. Prosledjuje kolonu ka Activity preko interfejsa.
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         callback.onColumnClicked(position%7);

@@ -14,6 +14,8 @@ import android.widget.Button;
 
 /**
  * A simple {@link Fragment} subclass.
+ *
+ * Fragment za odabir igraca.
  */
 public class ChoosePlayerFragment extends Fragment {
 
@@ -41,12 +43,10 @@ public class ChoosePlayerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // If activity recreated (such as from screen rotate), restore
-        // the previous article selection set by onSaveInstanceState().
-        // This is primarily necessary when in the two-pane layout.
         if (savedInstanceState != null) {
             type = savedInstanceState.getInt(Constants.ARG_TYPE);
         }
+
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_choose_player, container, false);
         playBtn = ((Button)rootView.findViewById(R.id.play_game_button));
@@ -56,9 +56,11 @@ public class ChoosePlayerFragment extends Fragment {
             public void onClick(View view) {callback.onPlayButton(type);}
         });
 
+        // reference za dve tacke
         final View redDot = rootView.findViewById(R.id.dot_red);
         final View yellowDot = rootView.findViewById(R.id.dot_yellow);
 
+        // liseneri za klik na tacke, pokretanje animacije
         redDot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,6 +120,7 @@ public class ChoosePlayerFragment extends Fragment {
         outState.putInt(Constants.ARG_TYPE, type);
     }
 
+    // animacija sakupljanja/sirenja tacke kada je selektovana
     public void dotAnimation(final View dot){
         animator = ValueAnimator.ofFloat(0, (float) Math.PI);
         animator.setDuration(1100);

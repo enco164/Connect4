@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 /**
  * Created by enco on 7.11.15..
+ *
+ * Klasa koja sluzi za lakse upravljanje Parcelable interfejsom.
  */
 public class ParcelableUtil {
     public static byte[] marshall(Parcelable parceable) {

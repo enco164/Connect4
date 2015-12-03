@@ -7,8 +7,10 @@ import java.util.Random;
 
 /**
  * Created by enco on 4.11.15..
+ *
+ * Vestacka inteligencija za igru.
  */
-public class Connect4AI {
+public class AI {
 
 
     private int depth = 4;
@@ -19,7 +21,7 @@ public class Connect4AI {
     private int[][] rootNode;
     private int[][] workNode;
 
-    public Connect4AI(){
+    public AI(){
     }
 
     public void setPlyDepth(int plydepth){

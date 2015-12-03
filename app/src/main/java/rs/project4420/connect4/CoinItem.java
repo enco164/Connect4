@@ -2,6 +2,9 @@ package rs.project4420.connect4;
 
 /**
  * Created by enco on 4.11.15..
+ *
+ * Klasa koja sluzi da cuva podatke o jednom novcicu.
+ *
  */
 public class CoinItem {
 

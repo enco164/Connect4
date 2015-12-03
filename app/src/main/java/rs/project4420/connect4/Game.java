@@ -1,37 +1,30 @@
 package rs.project4420.connect4;
 
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 import android.util.Pair;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Created by enco on 4.11.15..
+ *
+ * Game klasa koja je zaduzena kao proxy izmedju kontorlera (Activity) i samih podataka (GameData)
  */
 public class Game {
     private static final String TAG = Game.class.getSimpleName();
 
     private final Set<GameListener> gameListeners = new HashSet<>();
 
-    private Connect4AI ai;
+    private AI ai;
     private GameData gameData;
 
     public Game() {
         gameData = new GameData();
 
-        //ai = new Connect4AI();
+        //ai = new AI();
     }
 
     public CoinItem[][] getCoinData() {
@@ -44,7 +37,6 @@ public class Game {
 
     public void setGameData(GameData gameData) {
         this.gameData = gameData;
-        Log.d(TAG, "i = " + gameData.getLastI() + "; j = " + gameData.getLastJ());
         broadcastDataChanged();
 
     }
@@ -54,10 +46,9 @@ public class Game {
         broadcastDataChanged();
     }
 
-
     public void setType(int type) {
         if(Constants.ARG_AI == type)
-            ai = new Connect4AI();
+            ai = new AI();
         gameData.setType(type);
         Log.d(TAG, "type: " + type);
     }
@@ -82,16 +73,22 @@ public class Game {
         gameListeners.remove(listener);
     }
 
-    public boolean next(int col){
-        if(col>6)return false;
+    /**
+     * Metod sluzi za igranje sledeceg poteza. Ako je potez validan metod smesta novcic na pravo
+     * mesto i vraca true, u suprotnom vraca false.
+     * @param column
+     * @return true ako je validan potez, false u suprotnom
+     */
+    public boolean next(int column){
+        if(column>6)return false;
         if(checkFinish()) return false;
         // check if valid move
         for (int i = 5; i >= 0; i--) {
-            if(Constants.COIN_OWNER_GRID == gameData.getData()[i][col].getCoinOwner()){
+            if(Constants.COIN_OWNER_GRID == gameData.getData()[i][column].getCoinOwner()){
                 gameData.setLastI(i);
-                gameData.setLastJ(col);
+                gameData.setLastJ(column);
 
-                gameData.getData()[i][col].setCoinOwner(gameData.turn);
+                gameData.getData()[i][column].setCoinOwner(gameData.turn);
                 broadcastDataChanged();
                 gameData.turn = -1 * gameData.turn;
                 gameData.setTurnCount(gameData.getTurnCount()+1);
@@ -102,6 +99,9 @@ public class Game {
         return false;
     }
 
+    /**
+     * Metod koji se zove da bi AI odigrala sledeca
+     */
     public void nextComputer(){
         broadcastComputerThinking();
 
@@ -110,10 +110,10 @@ public class Game {
 
     }
 
-    public void setParticipants(ArrayList<String> participants) {
-        gameData.setParticipants(participants);
-    }
-
+    /**
+     * AsyncTask koji prima Game objekat i pokrece vestacku inteligenciju za izracunavanje sledeceg
+     * poteza. Slicno kao next(column) metoda.
+     */
     private class AINextMove extends AsyncTask<Game, Void, Void> {
 
         @Override
@@ -147,6 +147,12 @@ public class Game {
 
     }
 
+    public void setParticipants(ArrayList<String> participants) {
+        gameData.setParticipants(participants);
+    }
+
+
+    // Odredjeni interfejsi
     private void broadcastDataChanged(){
         Set<GameListener> snapshot = new HashSet<>(gameListeners);
         for (GameListener listener : snapshot) {
@@ -168,6 +174,10 @@ public class Game {
         }
     }
 
+    /**
+     * Provera da li je doslo do kraja igre. Postavlja i odredjeni status ako je doslo do kraja.
+     * @return true ako je neko pobedio ili je nereseno, false u suprotnom
+     */
     public boolean checkFinish() {
 
         // check if full
@@ -310,10 +320,6 @@ public class Game {
             Log.d(TAG, s);
         }
         Log.d(TAG, "-------");
-    }
-
-    public void initMultiplayer() {
-
     }
 
     @Override

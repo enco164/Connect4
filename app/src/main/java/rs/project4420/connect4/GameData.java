@@ -17,6 +17,16 @@ import java.util.Arrays;
 
 /**
  * Created by enco on 8.11.15..
+ *
+ * GameData klasa koja sluzi za komunikaciju sa serverom. Namerno je izdvojena kao posebna od klase
+ * Game jer ovde se samo nalaze podaci a u Game je operisanje nad ovom klasom. Ova klasa se
+ * serijalizuje preko Parcelable interfejsa (specificna serijalizacija objekata za Android). Kada se
+ * objekat prebaci u Parcel onda je moguce pretvoriti ga u byte[]. Google server prima byte[] koji
+ * potom salje ostalim korisnicima.
+ *
+ * Za serijalizaciju je u pocetku korisceno prebacivanje u JSON zbog debagovanja jer moze lepse da
+ * se iscita u konzoli. Metode prebacivanja objekta u JSON nisu azurirane pa ih ni ne treba uzimati
+ * zdravo za gotovo.
  */
 public class GameData implements Parcelable{
     private static final String TAG = "GameData";
@@ -31,9 +41,11 @@ public class GameData implements Parcelable{
     private int type;
     private ArrayList<String> participants;
 
+    // poslednje odigrani potezi
     private int lastI;
     private int lastJ;
 
+    // parovi (i,j) u tabli koji novcici su pobednicki, za prikazivanje animacije
     private ArrayList<Pair<Integer, Integer>> winnerCoins;
 
 
@@ -44,7 +56,8 @@ public class GameData implements Parcelable{
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 7; j++) {
                 data[i][j] = new CoinItem();
-                /*if(j == 3){
+                /* debagovanje kraja igre, da bi u startu imali 3 kuglice :)
+                if(j == 3){
                     if (i > 2)
                         data[i][j].setCoinOwner(Constants.PLAYER_1);
                 }*/
@@ -97,6 +110,11 @@ public class GameData implements Parcelable{
         return 0;
     }
 
+    /**
+     * Prebacivanje objekta u Parcel
+     * @param dest
+     * @param flags
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(turn);
@@ -135,6 +153,10 @@ public class GameData implements Parcelable{
         }
     };
 
+    /**
+     * Ucitavanje objekta (deserijalizacija) iz Parcel
+     * @param source
+     */
     private GameData(Parcel source){
         this.turn = source.readInt();
         this.turnCount = source.readInt();
