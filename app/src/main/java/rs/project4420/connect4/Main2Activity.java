@@ -546,6 +546,7 @@ public class Main2Activity extends AppCompatActivity
 
     @Override
     public void onSignInButton() {
+        Log.d(TAG, "clicked!");
         mSignInClicked = true;
         match = null;
         mGoogleApiClient.connect();
